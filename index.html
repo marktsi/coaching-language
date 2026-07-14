@@ -136,7 +136,257 @@
     min-height:20px;
   }
 
+  /* PITCH ----------------------------------------------- */
+  .pitch-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:26px 12px 46px;
+  }
+  .scene{
+    position:relative;
+    width:400px;
+    height:600px;
+    max-width:100%;
+    background:var(--bg);
+  }
+  .field{
+    position:absolute;
+    left:55px; top:45px; width:290px; height:500px;
+    background:#1a5c1a;
+    border:2px solid #fff;
+    box-sizing:border-box;
+  }
+  .line{position:absolute;background:#fff;}
+  .halfway{left:0;top:50%;width:100%;height:2px;transform:translateY(-1px);}
+  .centre-circle{
+    position:absolute;left:50%;top:50%;
+    width:90px;height:90px;
+    border:2px solid #fff;border-radius:50%;
+    transform:translate(-50%,-50%);
+  }
+  .centre-dot{
+    position:absolute;left:50%;top:50%;
+    width:7px;height:7px;background:#fff;border-radius:50%;
+    transform:translate(-50%,-50%);
+  }
+  .pbox{
+    position:absolute;left:50%;
+    width:150px;height:78px;
+    border:2px solid #fff;
+    transform:translateX(-50%);
+  }
+  .pbox.top{top:0;border-top:none;}
+  .pbox.bottom{bottom:0;border-bottom:none;}
+  .goal{
+    position:absolute;left:50%;
+    width:70px;height:14px;
+    border:2px solid #fff;
+    transform:translateX(-50%);
+    background:rgba(255,255,255,.12);
+  }
+  .goal.top{top:-14px;}
+  .goal.bottom{bottom:-14px;}
+
+  .player{
+    position:absolute;
+    width:26px;height:26px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;font-size:14px;color:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.5);
+    transition:left .85s cubic-bezier(0.4,0,0.2,1),top .85s cubic-bezier(0.4,0,0.2,1);
+    z-index:5;
+  }
+  .player.red{background:var(--red);}
+  .player.blue{background:#1a6eb5;}
+  .player.gk{
+    border-radius:5px;
+    transition:none;
+  }
+  .ball{
+    position:absolute;
+    width:14px;height:14px;border-radius:50%;
+    background:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.6);
+    transition:left .85s cubic-bezier(0.4,0,0.2,1),top .85s cubic-bezier(0.4,0,0.2,1);
+    z-index:6;
+  }
+
+  /* GAME-HABIT MARKERS (lifted from 4v2-game-habit-1 / -2) --- */
+  .plabel{position:relative;z-index:3;}
+  .pbody,.phead{position:absolute;inset:0;pointer-events:none;opacity:0;}
+  .pbody{transform:rotate(var(--bd,0deg));}      /* shoulder line = body facing */
+  .phead{transform:rotate(var(--hd,0deg));}      /* eyes + cone = head facing  */
+  .shoulders{position:absolute;top:50%;left:50%;width:27px;height:4.5px;border-radius:3px;
+    background:#fff;box-shadow:0 0 4px rgba(0,0,0,.6);transform:translate(-50%,-50%);}
+  .chest{position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:0;
+    border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:7px solid #fff;}
+  .eyes{position:absolute;top:1px;left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:4;}
+  .eyes i{display:block;width:3.6px;height:3.6px;border-radius:50%;background:#fff;
+    box-shadow:0 0 2px rgba(0,0,0,.8);}
+  .cone{position:absolute;left:50%;bottom:50%;width:88px;height:44px;transform:translateX(-50%);
+    background:linear-gradient(to top,rgba(255,236,110,.92),rgba(255,236,110,.05));
+    filter:drop-shadow(0 0 5px rgba(255,236,110,.65));
+    clip-path:polygon(50% 100%,0 0,100% 0);opacity:0;transition:opacity .3s;}
+  .player.scanning .cone,.player.seeing .cone{opacity:1;}
+  .player.scanning .phead{opacity:1;animation:scanSpin 3s linear infinite;}             /* Blue: cone sweeps a FULL rotation */
+  .player.bodyshape .pbody{opacity:1;animation:bodySweep 1.6s ease-in-out infinite;}    /* Blue: body open to bottom goal, side to side */
+  .player.bodyfix .pbody{opacity:1;}                                                     /* Blue: fixed body angle via --bd, no sweep */
+  @keyframes scanSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  /* Blue attack downward → facing 180deg (chest to bottom goal), sweeping ±38deg, never square to own (top) goal */
+  @keyframes bodySweep{0%,100%{transform:rotate(142deg);}50%{transform:rotate(218deg);}}
+
+  /* CONNECT — pulsing unit network ---------------------- */
+  .net{position:absolute;left:0;top:0;width:400px;height:600px;pointer-events:none;
+    z-index:2;opacity:0;transition:opacity .4s;}
+  .net.show{opacity:1;}
+  .netline{stroke-width:2.5;stroke-linecap:round;animation:connectPulse 1.6s ease-in-out infinite;}
+  .netline.red{stroke:var(--red);}
+  .netline.blue{stroke:#1a6eb5;}
+  @keyframes connectPulse{0%,100%{opacity:.22;}50%{opacity:.9;}}
+
+  /* ATTACKING — space zones + movement / pass arrows ---- */
+  .azone{position:absolute;z-index:2;opacity:0;pointer-events:none;border-radius:4px;
+    background:rgba(198,29,35,.20);border:2px dashed rgba(198,29,35,.75);
+    transition:opacity .4s;animation:zonePulse 1.8s ease-in-out infinite;}
+  .azone.show{opacity:1;}
+  @keyframes zonePulse{0%,100%{background:rgba(198,29,35,.12);}50%{background:rgba(198,29,35,.28);}}
+  .fx{position:absolute;left:0;top:0;width:400px;height:600px;pointer-events:none;z-index:7;}
+  .fxline{fill:none;}
+  .fxline.move{stroke:var(--red);stroke-width:2.5;stroke-dasharray:6,4;}
+  .fxline.pass{stroke:#fff;stroke-width:3;}
+
+  /* ATTACKING — focus dim, highlight ring, coaching badge --- */
+  .player.dim{opacity:.16;}
+  .fxring{fill:none;stroke:rgba(255,255,255,.9);stroke-width:2;stroke-dasharray:6,5;}
+  .badge{position:absolute;left:200px;top:8px;transform:translateX(-50%);z-index:9;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;font-size:20px;padding:4px 18px;border-radius:5px;border:2px solid;
+    opacity:0;transition:opacity .3s;white-space:nowrap;pointer-events:none;}
+  .badge.show{opacity:1;}
+  .badge.go{color:#22b56e;border-color:#22b56e;background:rgba(34,181,110,.14);}
+  .badge.stop{color:#e23b3b;border-color:#e23b3b;background:rgba(226,59,59,.14);}
+  .badge.info{color:#fff;border-color:#fff;background:rgba(255,255,255,.10);}
+
+  /* DEFENDING — pulse highlight on players + ghost (blocked) pass lines */
+  .player.hl{z-index:8;animation:hlPulse 1.1s ease-in-out infinite;}
+  @keyframes hlPulse{
+    0%,100%{box-shadow:0 0 0 2px rgba(255,255,255,.55),0 0 8px rgba(255,255,255,.45);}
+    50%{box-shadow:0 0 0 4px rgba(255,255,255,.95),0 0 18px rgba(255,255,255,.85);}}
+  .fxghost{fill:none;stroke:rgba(210,210,210,.30);stroke-width:2;stroke-dasharray:2,6;}
+
+  /* CONTROLS -------------------------------------------- */
+  .phase-label{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--red);
+    font-size:clamp(20px,2.6vw,28px);
+    margin-top:20px;text-align:center;
+  }
+  .phase-desc{
+    max-width:400px;text-align:center;
+    color:#ddd;font-size:15px;margin-top:8px;padding:0 10px;
+    min-height:44px;
+  }
+  .dots{display:flex;gap:9px;margin-top:14px;}
+  .dot{
+    width:10px;height:10px;border-radius:50%;
+    background:#444;transition:background .2s;
+  }
+  .dot.on{background:var(--red);}
+  .controls{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center;}
+  .controls button{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+    font-size:16px;color:#fff;
+    background:#1a1a1a;border:1px solid var(--grey);
+    border-radius:4px;padding:9px 20px;cursor:pointer;
+    transition:background .15s,border-color .15s;
+  }
+  .controls button:hover{border-color:#888;}
+  .controls button.primary{background:var(--red);border-color:var(--red);}
+  .controls button:disabled{opacity:.35;cursor:default;border-color:var(--grey);}
+
+  /* TERM LAYOUT ----------------------------------------- */
+  .cols{
+    display:flex;gap:26px;
+    align-items:flex-start;justify-content:center;
+    padding:24px 14px 8px;flex-wrap:wrap;
+  }
+  .cards{
+    display:flex;flex-direction:column;gap:12px;
+    width:260px;max-width:100%;
+  }
+  .card-subhead{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;text-transform:uppercase;letter-spacing:.16em;
+    font-size:12px;color:#777;margin-top:8px;padding:0 2px 2px;
+  }
+  .cards .card-subhead:first-child{margin-top:0;}
+  .card{
+    background:#000;
+    border:1px solid var(--grey);
+    border-left:4px solid var(--grey);
+    border-radius:4px;
+    padding:14px 16px;cursor:pointer;
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+    font-size:20px;color:#fff;
+    transition:border-color .15s,background .15s;
+  }
+  .card:hover{border-color:#888;}
+  .card.selected{
+    border-color:var(--red);
+    border-left:4px solid var(--red);
+    background:#160607;
+  }
+  .definition{
+    max-width:900px;margin:8px auto 44px;
+    padding:18px 22px 0;text-align:center;
+    border-top:1px solid #222;
+  }
+  .definition .term{
+    font-family:'Barlow Condensed',sans-serif;
+    text-transform:uppercase;letter-spacing:.04em;
+    color:var(--red);font-weight:700;font-size:22px;
+    margin-top:18px;
+  }
+  .definition .meaning{color:#eee;font-size:17px;margin-top:6px;}
+
+  /* TEXT-ONLY CARDS (no pitch, grey bar) ---------------- */
+  .card.textcard.selected{
+    border-color:var(--grey);
+    border-left:4px solid var(--grey);
+    background:#141414;
+  }
+  .text-only{
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;width:400px;max-width:100%;min-height:340px;padding:30px 20px;
+  }
+  .text-only .to-name{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;text-transform:uppercase;letter-spacing:.03em;
+    color:#fff;font-size:clamp(26px,3.6vw,40px);line-height:1.05;
+  }
+  .text-only .to-meaning{
+    color:#ddd;font-size:clamp(16px,2vw,20px);margin-top:16px;max-width:420px;line-height:1.55;
+  }
+
+  /* GLOBAL HABITS — intro line + numbered cards --------- */
+  .gh-intro{
+    font-style:italic;color:#999;font-size:14px;
+    line-height:1.5;padding:0 2px 6px;
+  }
+  .card .card-num{color:#bbb;font-weight:700;margin-right:8px;}
+  .card.selected .card-num{color:#fff;}
+
   /* MOBILE ---------------------------------------------- */
+  @media (max-width:800px){
+    .cols{flex-direction:column;align-items:center;}
+    .cards{width:100%;max-width:400px;}
+  }
   @media (max-width:640px){
     .hero-cols{flex-direction:column;}
     .hero-quote,.hero-img{flex:1 1 auto;}
@@ -173,22 +423,731 @@
   <p class="intro">Our shared language. Click any term to see it on the pitch.</p>
 
   <nav class="tabs" id="tabs">
-    <button class="tab" data-tab="general">General</button>
-    <button class="tab" data-tab="mindset">Mindset</button>
-    <button class="tab active" data-tab="attacking">Attacking</button>
+    <button class="tab active" data-tab="general">General</button>
+    <button class="tab" data-tab="attacking">Attacking</button>
     <button class="tab" data-tab="defending">Defending</button>
+    <button class="tab" data-tab="mindset">Mindset</button>
+    <button class="tab" data-tab="global-habits">Global Habits</button>
   </nav>
 
-  <div id="panel"></div>
+  <div id="panel">
+    <div class="cols">
+      <div class="cards" id="cards"></div>
+
+      <div class="pitch-wrap">
+        <div class="scene" id="scene">
+          <div class="field">
+            <div class="line halfway"></div>
+            <div class="centre-circle"></div>
+            <div class="centre-dot"></div>
+            <div class="pbox top"></div>
+            <div class="pbox bottom"></div>
+            <div class="goal top"></div>
+            <div class="goal bottom"></div>
+          </div>
+          <svg class="net" id="netSvg" viewBox="0 0 400 600"></svg>
+          <div class="azone" id="azone"></div>
+          <svg class="fx" id="fxSvg" viewBox="0 0 400 600">
+            <defs>
+              <marker id="mMove" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+                <path d="M0,0 L7,3.5 L0,7 Z" fill="#C61D23"/></marker>
+              <marker id="mPass" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+                <path d="M0,0 L7,3.5 L0,7 Z" fill="#fff"/></marker>
+            </defs>
+            <g id="fxLayer"></g>
+          </svg>
+          <div class="badge" id="badge"></div>
+          <!-- players + ball injected here -->
+        </div>
+
+        <div class="phase-label" id="phaseLabel"></div>
+        <div class="phase-desc" id="phaseDesc"></div>
+        <div class="dots" id="dots"></div>
+        <div class="controls">
+          <button id="btnBack">&larr; Back</button>
+          <button id="btnAuto" class="primary">&#9654; Auto</button>
+          <button id="btnNext">Next &rarr;</button>
+        </div>
+        <div class="text-only" id="textOnly"></div>
+      </div>
+    </div>
+
+    <div class="definition" id="definition"></div>
+  </div>
 
 <script>
+  /* ---- Geometry: scene 400x600, field left55 top45 w290 h500 ---- */
+  const FL=55, FT=45, FW=290, FH=500;
+  function p(px,py){ return [ FL + px/100*FW - 13, FT + py/100*FH - 13 ]; } // 26px player
+  function b(px,py){ return [ FL + px/100*FW - 7,  FT + py/100*FH - 7  ]; } // 14px ball
+
+  /* ---- Formations: 1-3-2-3, order [LB,CB,RB,CM_L,CM_R,LW,ST,RW] ---- */
+  const RED_BASE  = [ p(22,78), p(50,82), p(78,78), p(35,60), p(65,60), p(18,38), p(50,32), p(82,38) ];
+  const RED_GK    = p(50,95);
+  const BLUE_BASE = [ p(78,22), p(50,18), p(22,22), p(65,40), p(35,40), p(82,62), p(50,68), p(18,62) ];
+  const BLUE_GK   = p(50,5);
+  const RED_LEFT  = RED_BASE.map(([x,y]) => [ x - 8/100*FW, y ]); // whole block 8% left
+
+  // Build a full 8-slot formation from a base + named overrides. Any role
+  // not named keeps its base position. Order [LB,CB,RB,CM_L,CM_R,LW,ST,RW].
+  const ROLE = { LB:0, CB:1, RB:2, CM_L:3, CM_R:4, LW:5, ST:6, RW:7 };
+  function setFrom(base, ov){
+    const a = base.map(pt => pt.slice());
+    if(ov) for(const k in ov){ a[ROLE[k]] = ov[k]; }
+    return a;
+  }
+  const R = ov => setFrom(RED_BASE, ov);
+  const B = ov => setFrom(BLUE_BASE, ov);
+
+  /* ---- TERMS data ---- */
+  const TERMS = [
+    // ONE STEP = 6% of the field. "two steps left" = x minus 12.
+    // "Touch tight" = 3-4% away. "One step off" = 8-10% away.
+    // "Goal side" = between the man and the goal that player is DEFENDING.
+    // Blue defends the TOP goal. Red defends the BOTTOM goal.
+    { id:'general-team-shape', category:'general', name:'Team Shape',
+      meaning:'Clear team shape - with or without the ball.',
+      phases:[
+        { label:'Red In Possession',
+          desc:'Red have the ball. Blue are spread — too much space between the units.',
+          red:R(), blue:B(), ball:b(78,78) },
+        { label:'Blue Get Compact',
+          desc:'Blue drop and pick up. Touch tight on the front three, holding off in midfield. Shape without the ball — no gaps between the units.',
+          red:R(),
+          blue:B({RB:p(18,34),CB:p(50,28),LB:p(82,34),CM_R:p(35,51),CM_L:p(65,51)}),
+          ball:b(78,78) }
+      ] },
+
+    { id:'general-scan', category:'general', name:'Scan',
+      meaning:'Raise your head and look. Seeing as much of the field as possible, as often as possible.',
+      phases:[
+        { label:'Scan', scan:true,
+          desc:'',
+          red:R(), blue:B(), ball:b(50,50) }
+      ] },
+
+    { id:'general-body-shape', category:'general', name:'Body Shape',
+      meaning:'In any given situation, with or without the ball — open to the field, never square to it.',
+      phases:[
+        { label:'Body Shape', body:true,
+          desc:'',
+          red:R(), blue:B(), ball:b(50,50) }
+      ] },
+
+    { id:'general-connect', category:'general', name:'Connect',
+      meaning:'Never leaving anyone isolated. The connections exist before the ball arrives.',
+      phases:[
+        { label:'Connect', connect:true,
+          desc:'',
+          red:R(), blue:B(), ball:b(50,50) }
+      ] },
+
+    { id:'attacking-in-behind', category:'attacking', group:'Collective', name:'In Behind',
+      meaning:'Space behind the defence.',
+      phases:[
+        { label:'Red Push Up And Mark',
+          desc:'Red push up and mark tight. Nobody presses the ball. The space behind them is now huge.',
+          red:R({LB:p(18,58),CB:p(50,58),RB:p(82,58),CM_L:p(35,46),CM_R:p(65,46),ST:p(50,25),RW:p(78,29),LW:p(28,34)}),
+          blue:B({RW:p(18,54),ST:p(50,54),LW:p(82,54)}), ball:b(22,22), zone:[15,66,85,92] },
+        { label:'Ball Into The Space',
+          desc:'Played into the space first — not to feet. The pass is made before the run.',
+          red:R({LB:p(18,58),CB:p(50,58),RB:p(82,58),CM_L:p(35,46),CM_R:p(65,46),ST:p(50,25),RW:p(78,29),LW:p(28,34)}),
+          blue:B({RW:p(18,54),ST:p(50,54),LW:p(82,54)}), ball:b(50,86), zone:[15,66,85,92], pass:[22,22,50,86] },
+        { label:'The Run',
+          desc:'Now Blue 9 runs onto it — the run comes after the pass. He is through, one v one with the keeper.',
+          red:R({LB:p(18,58),CB:p(50,58),RB:p(82,58),CM_L:p(35,46),CM_R:p(65,46),ST:p(50,25),RW:p(78,29),LW:p(28,34)}),
+          blue:B({RW:p(18,54),LW:p(82,54),ST:p(50,86)}), ball:b(50,86), moves:[[50,54,50,86]] }
+      ] },
+
+    { id:'attacking-movement', category:'attacking', group:'Collective', name:'Movement',
+      meaning:'Into space and with variety — width, depth and to the ball.',
+      phases:[
+        { label:'Flat And Static',
+          desc:"Blue's front three are flat and easy to defend. No angles for the centre back to hit.",
+          red:R({LB:p(18,66),CB:p(50,72),RB:p(82,66),CM_L:p(35,45),CM_R:p(65,45),ST:p(50,24),RW:p(78,28),LW:p(22,28)}),
+          blue:B(), ball:b(50,18) },
+        { label:'Three Different Runs',
+          desc:'Width, depth, and to the ball. Three problems for Red, not one.',
+          red:R({LB:p(18,66),CB:p(50,72),RB:p(82,66),CM_L:p(35,45),CM_R:p(58,34),ST:p(50,24),RW:p(78,28),LW:p(22,28)}),
+          blue:B({RW:p(8,64),ST:p(66,68),LW:p(66,46),CM_L:p(58,28)}), ball:b(50,18),
+          moves:[[18,62,8,64],[50,68,66,68],[82,62,66,46],[65,40,58,28]] },
+        { label:'Any Of The Three',
+          desc:'Three options because the movement was varied. Movement created the pass.',
+          red:R({LB:p(18,66),CB:p(50,72),RB:p(82,66),CM_L:p(35,45),CM_R:p(58,34),ST:p(50,24),RW:p(78,28),LW:p(22,28)}),
+          blue:B({RW:p(8,64),ST:p(66,68),LW:p(66,46),CM_L:p(58,28)}), ball:b(66,46),
+          pass:[50,18,66,46] }
+      ] },
+
+    { id:'attacking-hold-up', category:'attacking', group:'Collective', name:'Hold Up',
+      meaning:'Protect the ball the way you are facing.',
+      phases:[
+        { label:'Played Long',
+          desc:'Ball played long. The striker is alone with a defender on him.',
+          red:R({LB:p(18,66),CB:p(50,65),RB:p(82,66),CM_L:p(35,45),CM_R:p(65,45),ST:p(56,24),RW:p(78,28),LW:p(22,28)}),
+          blue:B({ST:p(50,59)}), ball:b(50,18), pass:[50,18,50,59] },
+        { label:'Protect It',
+          desc:'Body between ball and defender. Not trying to turn. Buying seconds.',
+          red:R({LB:p(18,66),CB:p(50,65),RB:p(82,66),CM_L:p(35,45),CM_R:p(65,45),ST:p(56,24),RW:p(78,28),LW:p(22,28)}),
+          blue:B({ST:p(50,59),CM_R:p(48,50)}), ball:b(50,55), moves:[[35,40,48,50]] },
+        { label:'Lay It Off',
+          desc:'The hold-up bought the time. Support arrived. Blue keep the ball high up the pitch.',
+          red:R({LB:p(18,66),CB:p(50,65),RB:p(82,66),CM_L:p(35,45),CM_R:p(65,45),ST:p(56,24),RW:p(78,28),LW:p(22,28)}),
+          blue:B({ST:p(50,59),CM_R:p(48,50)}), ball:b(48,50), pass:[50,59,48,50] }
+      ] },
+
+    { id:'attacking-between-the-lines', category:'attacking', group:'Collective', name:'Between The Lines',
+      meaning:'Spaces between opposition lines — attack, midfield, defence.',
+      phases:[
+        { label:'The Gap',
+          desc:"The gap between Red's two lines. Nobody is in it.",
+          red:R(), blue:B(), ball:b(50,18), zone:[10,62,90,76] },
+        { label:'Occupy It',
+          desc:'A Blue player stands where neither Red line is responsible for him.',
+          red:R({CM_L:p(38,50),CM_R:p(62,50)}), blue:B({CM_L:p(60,40),ST:p(50,58)}), ball:b(60,40),
+          zone:[10,54,90,76], pass:[50,18,60,40], moves:[[50,68,50,58]] },
+        { label:'Find Him',
+          desc:'Received between the lines, facing forward, in front of the defence. Red are in trouble.',
+          red:R({CM_L:p(38,50),CM_R:p(62,50)}), blue:B({CM_L:p(60,40),ST:p(50,58)}), ball:b(50,58),
+          pass:[60,40,50,58] }
+      ] },
+
+    { id:'attacking-turn-v-player-on', category:'attacking', group:'Individual', name:'Turn v Player On',
+      meaning:'Turn with the ball into the space. Player On means opposition close — cannot turn.',
+      phases:[
+        { label:'Blue 6 On The Ball',
+          desc:'Blue 6 has the ball. Red 4 has left the space in front of Blue 9.',
+          red:R({CB:p(70,82)}), blue:B(), ball:b(65,40) },
+        { label:'Turn',
+          desc:'The pass is in. Nobody is near him. He has time. The shout is TURN.',
+          red:R({CB:p(70,82)}), blue:B(), ball:b(50,68),
+          scanBlue:[6], bodyBlue:[6], badge:{t:'✓ TURN',c:'go'} },
+        { label:'Turned And Facing Goal',
+          desc:"He's turned. The game is in front of him.",
+          red:R({CB:p(70,82)}), blue:B({ST:p(50,80)}), ball:b(50,80) },
+        { label:'Reset — Player On',
+          desc:'Same pass. But this time Red 4 is right on his back.',
+          red:R({CB:p(50,74)}), blue:B(), ball:b(65,40) },
+        { label:'Player On',
+          desc:'He cannot turn. Red is on his back.',
+          red:R({CB:p(50,74)}), blue:B(), ball:b(50,68), badge:{t:'PLAYER ON',c:'stop'} },
+        { label:'Plays It Back',
+          desc:'He holds it and plays it back. Protect it, keep the ball.',
+          red:R({CB:p(50,74)}), blue:B(), ball:b(65,40) }
+      ] },
+
+    { id:'attacking-commit-or-penetrate', category:'attacking', group:'Individual', name:'Commit or Penetrate',
+      meaning:'Commit the defensive player with direct attack.',
+      phases:[
+        { label:'Standing Still',
+          desc:"The winger has the ball but isn't running at anyone. The defender is comfortable.",
+          red:R({LB:p(20,72)}), blue:B(), ball:b(18,62) },
+        { label:'Commit Him',
+          desc:'The defender is now committed. He has to make a decision. He cannot cover the space and the man.',
+          red:R({LB:p(20,72)}), blue:B({RW:p(19,68)}), ball:b(19,68), moves:[[18,62,20,72]] },
+        { label:'Penetrate',
+          desc:'The defender was committed, so he was beaten. Directness created the penetration.',
+          red:R({LB:p(20,72)}), blue:B({RW:p(12,82)}), ball:b(12,82), moves:[[19,68,12,82]] }
+      ] },
+
+    { id:'attacking-1v1', category:'attacking', group:'Individual', name:'1v1',
+      meaning:'Dominant player is in an individual contest, no defensive cover.',
+      phases:[
+        { label:'Recognise It',
+          desc:'It’s a genuine 1v1 — there is no cover. He must see that before he decides.',
+          red:R({RB:p(80,70)}), blue:B(), ball:b(82,62),
+          focus:{blue:[5],red:[2]}, ring:[81,66,50] },
+        { label:'Attack Him With Pace',
+          desc:'He goes at him with pace and intent. The defender is retreating.',
+          red:R({RB:p(80,80)}), blue:B({LW:p(82,72)}), ball:b(82,72),
+          focus:{blue:[5],red:[2]}, moves:[[82,62,82,72]] },
+        { label:'Beat Him',
+          desc:'1v1 won. No cover means one beaten defender is one goal-scoring chance. That’s why we back the 1v1.',
+          red:R({RB:p(80,80)}), blue:B({LW:p(70,84)}), ball:b(70,84),
+          focus:{blue:[5],red:[2]}, zone:[55,80,92,93], moves:[[82,72,70,84]] }
+      ] },
+
+    { id:'attacking-numbers-up', category:'attacking', group:'Individual', name:'Numbers Up',
+      meaning:'Players have numbers up to take advantage of the situation.',
+      phases:[
+        { label:'3v2 — Red Are Out Of Position',
+          desc:'Red 2 is out of position. Three Blue attackers against two Red defenders.',
+          red:R({LB:p(22,50),CB:p(46,80),RB:p(66,80)}), blue:B({ST:p(50,66),RW:p(22,66),LW:p(78,66)}), ball:b(50,66),
+          focus:{blue:[5,6,7],red:[0,1,2]}, badge:{t:'3v2',c:'info'} },
+        { label:'Commit Them',
+          desc:'Carrying at them forces a decision. One defender commits to the ball.',
+          red:R({LB:p(22,50),CB:p(46,80),RB:p(58,78)}), blue:B({ST:p(50,73),RW:p(22,66),LW:p(78,66)}), ball:b(50,73),
+          focus:{blue:[5,6,7],red:[0,1,2]}, moves:[[66,80,58,78]] },
+        { label:'The Free Man Runs Through',
+          desc:'The free man gets the ball in stride. Numbers up only counts if the pass finds him.',
+          red:R({LB:p(22,50),CB:p(46,80),RB:p(58,78)}), blue:B({ST:p(50,73),RW:p(28,86),LW:p(72,86)}), ball:b(72,86),
+          focus:{blue:[5,6,7],red:[0,1,2]}, pass:[50,73,72,86], moves:[[78,66,72,86],[22,66,28,86]] }
+      ] },
+
+    { id:'defending-press', category:'defending', group:'Collective', name:'Press',
+      meaning:'What press, who presses, how do we press.',
+      phases:[
+        { label:'The Trigger',
+          desc:"The ball goes wide into the trap. That's the trigger. Everyone waits for it.",
+          red:R(), blue:B({LW:p(66,62),CM_R:p(27,40),LB:p(82,32),RB:p(18,32),CB:p(50,26)}), ball:b(22,78), zone:[8,52,44,84] },
+        { label:'Who Presses',
+          desc:'One player presses the ball, two cut the exits. The press is a unit, not a chase.',
+          red:R(), blue:B({LW:p(66,68),CM_R:p(27,40),LB:p(82,32),RB:p(18,32),CB:p(50,26),ST:p(30,74),RW:p(31,60),CM_L:p(46,54)}), ball:b(22,78),
+          zone:[8,52,44,84], moves:[[50,68,30,74],[18,62,31,60],[65,40,46,54],[66,62,66,68]] },
+        { label:'Win It',
+          desc:"Ball won high, close to Red's goal. That's what the press is for. Not effort — reward.",
+          red:R(), blue:B({LW:p(66,68),CM_R:p(27,40),LB:p(82,32),RB:p(18,32),CB:p(50,26),ST:p(30,74),RW:p(31,60),CM_L:p(46,54)}), ball:b(46,54),
+          highlight:{blue:[3]} }
+      ] },
+
+    { id:'defending-cover', category:'defending', group:'Collective', name:'Cover',
+      meaning:'Covering space or a teammate while providing balance.',
+      phases:[
+        { label:'One Man Presses',
+          desc:'One Blue player has gone to press. He has left a space behind him.',
+          red:R(), blue:B({RW:p(24,72),CM_R:p(35,44),LW:p(73,55),CM_L:p(56,40),LB:p(82,32),RB:p(18,32),CB:p(50,26)}), ball:b(22,78), moves:[[18,62,24,72]] },
+        { label:'Who Covers',
+          desc:'The space behind the presser is covered as the press happens, not after it fails.',
+          red:R(), blue:B({RW:p(24,72),CM_R:p(30,53),LW:p(73,55),CM_L:p(56,40),LB:p(82,32),RB:p(18,32),CB:p(38,26)}), ball:b(22,78),
+          zone:[10,42,46,64], moves:[[35,44,30,53],[50,26,38,26]] },
+        { label:'Balance',
+          desc:'Pressure, cover, balance. If the presser is beaten, the next man is already there.',
+          red:R(), blue:B({RW:p(24,72),CM_R:p(30,53),LW:p(73,55),CM_L:p(56,40),LB:p(64,28),RB:p(18,32),CB:p(38,26)}), ball:b(22,78),
+          moves:[[82,32,64,28]], highlight:{blue:[0,1,2]} }
+      ] },
+
+    { id:'defending-delay', category:'defending', group:'Collective', name:'Delay',
+      meaning:'Slow down or delay the opposition attack for recovering teammates.',
+      phases:[
+        { label:'Outnumbered',
+          desc:"Blue have been broken. It's 3v1. If he dives in, it's a goal.",
+          red:R({LW:p(30,28),ST:p(50,40),RW:p(70,28)}), blue:B({CB:p(50,30),LB:p(78,50),RB:p(22,50)}), ball:b(50,40),
+          focus:{blue:[1],red:[5,6,7]} },
+        { label:"Don't Dive In",
+          desc:'He backs off. He shows them wide. Every second he buys, a teammate is running back.',
+          red:R({LW:p(30,28),ST:p(50,32),RW:p(70,28)}), blue:B({CB:p(50,24),CM_R:p(40,28),CM_L:p(60,28),LB:p(78,50),RB:p(22,50)}), ball:b(50,32),
+          focus:{blue:[1,3,4],red:[5,6,7]}, bodyBlue:[1], moves:[[50,30,50,24],[35,40,40,28],[65,40,60,28]] },
+        { label:'Numbers Restored',
+          desc:"The delay turned 3v1 into 3v3. He didn't win the ball — he won the time. That's the job.",
+          red:R({LW:p(30,28),ST:p(50,32),RW:p(70,28)}), blue:B({CB:p(50,24),CM_R:p(40,28),CM_L:p(60,28),LB:p(78,50),RB:p(22,50)}), ball:b(50,32),
+          focus:{blue:[1,3,4],red:[5,6,7]}, highlight:{blue:[1,3,4]} }
+      ] },
+
+    { id:'defending-deny', category:'defending', group:'Collective', name:'Create Space Where We Want Them To Go',
+      meaning:'Deny them the space they want. Create space where WE want them to go.',
+      phases:[
+        { label:'Touch Tight, One Side Open',
+          desc:"Everything central is locked. Blue's body shape is showing Red one way only.",
+          red:R(), blue:B({LB:p(82,32),RB:p(18,32),CB:p(50,26)}), ball:b(50,82),
+          bodyFix:{blue:[[5,-45],[6,-45],[7,-45]]} },
+        { label:'Shut The Inside',
+          desc:"Blue squeeze the inside and open the left. That's not a mistake — that's the invitation.",
+          red:R(), blue:B({LB:p(82,42),RB:p(18,42),CB:p(50,42),CM_R:p(35,54),CM_L:p(65,54),RW:p(32,70),ST:p(58,76),LW:p(78,70)}), ball:b(50,82),
+          zone:[6,54,42,92], bodyFix:{blue:[[5,-45],[6,-45],[7,-45]]},
+          moves:[[18,62,32,70],[50,68,58,76],[82,62,78,70],[35,40,35,54],[65,40,65,54],[18,32,18,42],[50,26,50,42],[82,32,82,42]] },
+        { label:'They Go Where We Want',
+          desc:"Red take the only ball on. It's the one we chose for them. Deny the space they want, create the space we want.",
+          red:R(), blue:B({LB:p(82,42),RB:p(18,42),CB:p(50,42),CM_R:p(35,54),CM_L:p(65,54),RW:p(32,70),ST:p(58,76),LW:p(78,70)}), ball:b(22,78),
+          zone:[6,54,42,92], bodyFix:{blue:[[5,-45],[6,-45],[7,-45]]} }
+      ] },
+
+    { id:'defending-goal-side', category:'defending', group:'Individual', name:'Goal Side',
+      meaning:'On our goal side of the attacker — able to see their jersey number.',
+      phases:[
+        { label:'Wrong Side',
+          desc:'The defender is the wrong side. If the ball goes over the top, he is chasing.',
+          red:R({ST:p(50,40)}), blue:B({CB:p(50,48),RB:p(20,33),LB:p(80,33),CM_R:p(35,50),CM_L:p(65,50)}), ball:b(50,82),
+          focus:{blue:[1],red:[1,6]}, badge:{t:'WRONG SIDE',c:'stop'} },
+        { label:'Recover Goal Side',
+          desc:"He's goal side. He can see the ball and the man at the same time.",
+          red:R({ST:p(50,40)}), blue:B({CB:p(50,34),RB:p(20,33),LB:p(80,33),CM_R:p(35,50),CM_L:p(65,50)}), ball:b(50,82),
+          focus:{blue:[1],red:[1,6]}, moves:[[50,48,50,34]], badge:{t:'✓ GOAL SIDE',c:'go'} },
+        { label:'Sees The Number',
+          desc:"Ball arrives and he's already there, looking at the attacker's number. Nothing is behind him.",
+          red:R({ST:p(50,40)}), blue:B({CB:p(50,34),RB:p(20,33),LB:p(80,33),CM_R:p(35,50),CM_L:p(65,50)}), ball:b(50,40),
+          focus:{blue:[1],red:[1,6]}, scanBlue:[1] }
+      ] },
+
+    { id:'defending-touch-tight', category:'defending', group:'Individual', name:'Touch Tight',
+      meaning:'No space between player and opposition — can put a hand on them.',
+      phases:[
+        { label:'Too Far Off',
+          desc:'The defender is goal side but loose. The attacker has time to turn.',
+          red:R({ST:p(50,40)}), blue:B({CB:p(50,31),RB:p(20,33),LB:p(80,33),CM_R:p(35,50),CM_L:p(65,50)}), ball:b(50,82),
+          focus:{blue:[1],red:[1,6]}, ghost:[[50,31,50,40]] },
+        { label:'Close The Gap',
+          desc:'He can put a hand on him. No space between them.',
+          red:R({ST:p(50,40)}), blue:B({CB:p(50,37),RB:p(20,33),LB:p(80,33),CM_R:p(35,50),CM_L:p(65,50)}), ball:b(50,82),
+          focus:{blue:[1],red:[1,6]}, ghost:[[50,37,50,40]], moves:[[50,31,50,37]], highlight:{blue:[1],red:[6]} },
+        { label:'Cannot Turn',
+          desc:'Ball arrives and the attacker cannot turn. Touch tight killed the pass before it landed.',
+          red:R({ST:p(50,40)}), blue:B({CB:p(50,37),RB:p(20,33),LB:p(80,33),CM_R:p(35,50),CM_L:p(65,50)}), ball:b(50,40),
+          focus:{blue:[1],red:[1,6]} }
+      ] },
+
+    { id:'defending-clear', category:'defending', group:'Individual', name:'Clear',
+      meaning:'When we cannot play, we clear. High, far and wide.',
+      phases:[
+        { label:'Under Pressure',
+          desc:'No pass on. Red is on top of him. This is a clearance, not a play.',
+          red:R({ST:p(50,17)}), blue:B({CB:p(50,12)}), ball:b(50,12),
+          focus:{blue:[1],red:[6]} },
+        { label:'The Wrong Clearance',
+          desc:'Low, central, short. Straight back to Red, twenty yards from goal.',
+          red:R({ST:p(50,24)}), blue:B({CB:p(50,12)}), ball:b(50,24),
+          focus:{blue:[1],red:[6]}, moves:[[50,17,50,24]] },
+        { label:'Straight At Goal',
+          desc:'He shoots. That clearance created the chance. We gave the goal away.',
+          red:R({ST:p(50,24)}), blue:B({CB:p(50,12)}), ball:b(60,2),
+          focus:{blue:[1],red:[6]} },
+        { label:'Reset — The Right Clearance',
+          desc:'Same situation. Same pressure. Different decision.',
+          red:R({ST:p(50,17)}), blue:B({CB:p(50,12)}), ball:b(50,12),
+          focus:{blue:[1],red:[6]} },
+        { label:'High, Far And Wide',
+          desc:'High, far and wide. Out of play, up the field, away from danger. Reset the line, get organised.',
+          red:R({ST:p(50,17)}), blue:B({CB:p(50,12)}), ball:b(97,86),
+          focus:{blue:[1],red:[6]} }
+      ] },
+
+    { id:'defending-stay-on-feet', category:'defending', group:'Individual', name:'Stay On Feet',
+      meaning:'Not diving in. Picking the right moment to win the ball.',
+      phases:[
+        { label:'1v1 On The Edge',
+          desc:'Red is running at him. This is the moment.',
+          red:R({ST:p(50,28)}), blue:B({CB:p(50,20)}), ball:b(50,28),
+          focus:{blue:[1],red:[6]} },
+        { label:'Dives In',
+          desc:"He dives in. He's beaten. There is nobody behind him.",
+          red:R({ST:p(50,16)}), blue:B({CB:p(50,26)}), ball:b(50,16),
+          focus:{blue:[1],red:[6]}, moves:[[50,20,50,26],[50,28,50,16]] },
+        { label:'Through On Goal',
+          desc:'One tackle, one goal. The dive-in cost us.',
+          red:R({ST:p(50,8)}), blue:B({CB:p(50,26)}), ball:b(50,8),
+          focus:{blue:[1],red:[6]}, moves:[[50,16,50,8]] },
+        { label:'Reset — Stay On Feet',
+          desc:'Same situation. Same pressure. Different decision.',
+          red:R({ST:p(50,28)}), blue:B({CB:p(50,20)}), ball:b(50,28),
+          focus:{blue:[1],red:[6]} },
+        { label:'Force The Mistake',
+          desc:"He stays on his feet. He doesn't gamble. Red makes the mistake, and now we have the ball.",
+          red:R({ST:p(50,30)}), blue:B({CB:p(50,22)}), ball:b(50,22),
+          focus:{blue:[1],red:[6]}, highlight:{blue:[1]} }
+      ] },
+
+    { id:'defending-body-on-the-line', category:'defending', group:'Individual', name:'Body On The Line',
+      meaning:"Putting the body in danger's way and prepared to take the hit.",
+      phases:[
+        { label:'The Shot Is Coming',
+          desc:"He's set to shoot. There is one thing standing between the ball and our goal.",
+          red:R({ST:p(50,12)}), blue:B({CB:p(44,15)}), ball:b(50,12),
+          focus:{blue:[1],red:[6]} },
+        { label:'Get In Front Of It',
+          desc:"He gets across and puts his body in the way. This is not comfortable. It's not meant to be.",
+          red:R({ST:p(50,12)}), blue:B({CB:p(50,7)}), ball:b(50,12),
+          focus:{blue:[1],red:[6]}, moves:[[44,15,50,7]] },
+        { label:'Blocked',
+          desc:"Blocked. That's a goal saved. Same value as a goal scored.",
+          red:R({ST:p(50,12)}), blue:B({CB:p(50,7)}), ball:b(60,18),
+          focus:{blue:[1],red:[6]}, highlight:{blue:[1]} }
+      ] },
+
+    { id:'mindset-engage', category:'mindset', text:true, name:'Engage',
+      meaning:'Be present. Engage in the moment and what is happening on the field.' },
+    { id:'mindset-recover', category:'mindset', text:true, name:'Recover',
+      meaning:'From an unexpected situation. Loss of possession or a mistake.' },
+    { id:'mindset-cop-on', category:'mindset', text:true, name:'Cop On',
+      meaning:'Trigger phrase. To wake up and focus. Usually in practice.' },
+    { id:'mindset-refocus', category:'mindset', text:true, name:'Refocus',
+      meaning:'When distracted — a bad referee decision, ball out of play. Refocus to the present.' },
+    { id:'mindset-whats-next', category:'mindset', text:true, name:"What's Next",
+      meaning:'No matter what has occurred, learn from it and move on to whatever is the next play.' },
+    { id:'general-work-hard', category:'mindset', text:true, name:'Work Hard, Work Smart, Enjoy',
+      meaning:"Players' fundamental targets." },
+    { id:'attacking-creativity', category:'mindset', text:true, name:'Creativity',
+      meaning:'To create something from nothing. Using imagination and improvisation.' },
+
+    { id:'gh-body-sideways', category:'global-habits', text:true, num:1, name:'Position Your Body Sideways', meaning:'' },
+    { id:'gh-head-up', category:'global-habits', text:true, num:2, name:'Raise Your Head & Look', meaning:'' },
+    { id:'gh-orientate-control', category:'global-habits', text:true, num:3, name:'Orientate Your Control', meaning:'' },
+    { id:'gh-disguise', category:'global-habits', text:true, num:4, name:'Disguise The Game', meaning:'' },
+    { id:'gh-pass-feet-space', category:'global-habits', text:true, num:5, name:'Pass To Feet or To Space', meaning:'' },
+    { id:'gh-death-pass', category:'global-habits', text:true, num:6, name:'Death Pass — Pass Between The GK and Defence', meaning:'' },
+    { id:'gh-passing-lines', category:'global-habits', text:true, num:7, name:'Passing Lines', meaning:'' },
+    { id:'gh-give-go-stay', category:'global-habits', text:true, num:8, name:'Give & Go or Give & Stay', meaning:'' },
+    { id:'gh-feint', category:'global-habits', text:true, num:9, name:'The Feint', meaning:'' },
+    { id:'gh-body-between', category:'global-habits', text:true, num:10, name:'Place The Body Between The Ball and Opponent', meaning:'' }
+  ];
+
+  /* ---- Build players + ball (once — never rebuilt) ---- */
+  const scene = document.getElementById('scene');
+  const redEls = [], blueEls = [];
+  const NUMS = [2,4,3,6,8,11,9,7]; // LB,CB,RB,CM_L,CM_R,LW,ST,RW
+
+  function mk(cls, num){
+    const d = document.createElement('div');
+    d.className = 'player ' + cls;
+    if(cls.indexOf('gk') === -1){
+      d.innerHTML =
+        '<div class="pbody"><span class="shoulders"></span><span class="chest"></span></div>'+
+        '<div class="phead"><span class="cone"></span><span class="eyes"><i></i><i></i></span></div>'+
+        '<span class="plabel">'+num+'</span>';
+    } else {
+      d.textContent = num;
+    }
+    scene.appendChild(d);
+    return d;
+  }
+  function place(el, pos){ el.style.left = pos[0]+'px'; el.style.top = pos[1]+'px'; }
+
+  /* ---- Connect network: pulsing lines between a team's units ---- */
+  // pairs over [LB,CB,RB,CM_L,CM_R,LW,ST,RW]: back line, mid, front line,
+  // and each line to the line ahead — an even, triangulated web.
+  const netSvg = document.getElementById('netSvg');
+  const NET_PAIRS = [[0,1],[1,2],[3,4],[5,6],[6,7],
+                     [0,3],[1,3],[1,4],[2,4],[3,5],[3,6],[4,6],[4,7]];
+  function ctr(pos){ return [pos[0]+13, pos[1]+13]; }
+  function netLines(arr, team){
+    let s = '';
+    for(const [a,c] of NET_PAIRS){
+      const p1 = ctr(arr[a]), p2 = ctr(arr[c]);
+      s += '<line class="netline '+team+'" x1="'+p1[0]+'" y1="'+p1[1]+'" x2="'+p2[0]+'" y2="'+p2[1]+'"/>';
+    }
+    return s;
+  }
+  function drawNet(redArr, blueArr){
+    netSvg.innerHTML = netLines(redArr,'red') + netLines(blueArr,'blue');
+  }
+
+  /* ---- Attacking FX: space zones + movement / pass arrows ---- */
+  const azone  = document.getElementById('azone');
+  const fxLayer= document.getElementById('fxLayer');
+  const badge  = document.getElementById('badge');
+  const textOnly = document.getElementById('textOnly');
+  function fx(px){ return FL + px/100*FW; }   // field% -> scene x (point centre)
+  function fy(py){ return FT + py/100*FH; }   // field% -> scene y (point centre)
+  // Arrow path in field% coords, trimmed ~16px off each end so it clears the players.
+  function arrowPath(x1,y1,x2,y2,off){
+    off = off||0;
+    const sx=fx(x1), sy=fy(y1), ex=fx(x2), ey=fy(y2);
+    const dx=ex-sx, dy=ey-sy, len=Math.sqrt(dx*dx+dy*dy)||1, o=16/len;
+    const px=-dy/len*off, py=dx/len*off;   // perpendicular shift (parallel arrows)
+    return 'M'+(sx+dx*o+px)+','+(sy+dy*o+py)+' L'+(ex-dx*o+px)+','+(ey-dy*o+py);
+  }
+
+  for(let i=0;i<8;i++){ redEls.push(mk('red', NUMS[i])); blueEls.push(mk('blue', NUMS[i])); }
+  // GKs — fixed, never move
+  const redGK  = mk('red gk', 1);  place(redGK, RED_GK);
+  const blueGK = mk('blue gk', 1); place(blueGK, BLUE_GK);
+  const ball = document.createElement('div');
+  ball.className = 'ball';
+  scene.appendChild(ball);
+
+  /* ---- Element handles ---- */
+  const cardsWrap = document.getElementById('cards');
+  const defWrap   = document.getElementById('definition');
+  const dotsWrap  = document.getElementById('dots');
+  const phaseLabel= document.getElementById('phaseLabel');
+  const phaseDesc = document.getElementById('phaseDesc');
+  const btnBack = document.getElementById('btnBack');
+  const btnNext = document.getElementById('btnNext');
+  const btnAuto = document.getElementById('btnAuto');
+  const controlsWrap = document.querySelector('.controls');
+
+  /* ---- Phase state (read from the selected term) ---- */
+  let phases = [];
+  let cur = 0;
+  let dots = [];
+  let timer = null;
+
+  function buildDots(n){
+    dotsWrap.innerHTML = '';
+    for(let i=0;i<n;i++){ const d=document.createElement('div'); d.className='dot'; dotsWrap.appendChild(d); }
+    dots = dotsWrap.querySelectorAll('.dot');
+  }
+
+  function applyPhase(i){
+    if(!phases.length) return;
+    cur = i;
+    const ph = phases[i];
+    for(let k=0;k<8;k++){ place(redEls[k], ph.red[k]); place(blueEls[k], ph.blue[k]); }
+    place(ball, ph.ball);
+    // Game-habit markers on Blue outfield players (all via scan/body, or a named subset)
+    const scanAll = !!ph.scan, bodyAll = !!ph.body;
+    const scanSet = new Set(ph.scanBlue||[]), bodySet = new Set(ph.bodyBlue||[]);
+    for(let k=0;k<8;k++){
+      redEls[k].classList.remove('scanning','bodyshape');
+      blueEls[k].classList.toggle('scanning', scanAll || scanSet.has(k));
+      blueEls[k].classList.toggle('bodyshape', bodyAll || bodySet.has(k));
+    }
+    // Fixed body angle (bodyFix:{blue:[[index,deg],...]}) — a held stance, not a sweep
+    const bfMap = new Map((ph.bodyFix && ph.bodyFix.blue) || []);
+    blueEls.forEach((el,i)=>{
+      if(bfMap.has(i)){ el.style.setProperty('--bd', bfMap.get(i)+'deg'); el.classList.add('bodyfix'); }
+      else { el.classList.remove('bodyfix'); }
+    });
+    // Connect network
+    if(ph.connect){ drawNet(ph.red, ph.blue); netSvg.classList.add('show'); }
+    else { netSvg.classList.remove('show'); }
+    // Space zone (translucent red rectangle in field% coords)
+    if(ph.zone){
+      const [zx1,zy1,zx2,zy2] = ph.zone;
+      azone.style.left  = fx(zx1)+'px';        azone.style.top    = fy(zy1)+'px';
+      azone.style.width = (fx(zx2)-fx(zx1))+'px'; azone.style.height = (fy(zy2)-fy(zy1))+'px';
+      azone.classList.add('show');
+    } else { azone.classList.remove('show'); }
+    // Highlight ring + movement (dashed) + pass (solid) arrows
+    let fxHtml = '';
+    if(ph.ring){ fxHtml += '<circle class="fxring" cx="'+fx(ph.ring[0])+'" cy="'+fy(ph.ring[1])+'" r="'+ph.ring[2]+'"/>'; }
+    if(ph.moves) for(const m of ph.moves){
+      fxHtml += '<path class="fxline move" marker-end="url(#mMove)" d="'+arrowPath(m[0],m[1],m[2],m[3])+'"/>';
+    }
+    if(ph.pass){
+      const passes = Array.isArray(ph.pass[0]) ? ph.pass : [ph.pass];
+      const off = passes.length > 1 ? 6 : 0;   // separate two-way passes into parallel arrows
+      for(const ps of passes){
+        fxHtml += '<path class="fxline pass" marker-end="url(#mPass)" d="'+arrowPath(ps[0],ps[1],ps[2],ps[3],off)+'"/>';
+      }
+    }
+    // Ghost lines — blocked/denied forward passes
+    if(ph.ghost) for(const g of ph.ghost){
+      fxHtml += '<line class="fxghost" x1="'+fx(g[0])+'" y1="'+fy(g[1])+'" x2="'+fx(g[2])+'" y2="'+fy(g[3])+'"/>';
+    }
+    fxLayer.innerHTML = fxHtml;
+    // Focus / dim — keep only the named players bright
+    if(ph.focus){
+      const bR = new Set(ph.focus.red||[]), bB = new Set(ph.focus.blue||[]);
+      redEls.forEach((el,i)=> el.classList.toggle('dim', !bR.has(i)));
+      blueEls.forEach((el,i)=> el.classList.toggle('dim', !bB.has(i)));
+      redGK.classList.add('dim'); blueGK.classList.add('dim');
+    } else {
+      redEls.forEach(el=> el.classList.remove('dim'));
+      blueEls.forEach(el=> el.classList.remove('dim'));
+      redGK.classList.remove('dim'); blueGK.classList.remove('dim');
+    }
+    // Pulse highlight on named players
+    if(ph.highlight){
+      const hR=new Set(ph.highlight.red||[]), hB=new Set(ph.highlight.blue||[]);
+      redEls.forEach((el,i)=> el.classList.toggle('hl', hR.has(i)));
+      blueEls.forEach((el,i)=> el.classList.toggle('hl', hB.has(i)));
+    } else {
+      redEls.forEach(el=> el.classList.remove('hl'));
+      blueEls.forEach(el=> el.classList.remove('hl'));
+    }
+    // Coaching badge (green TURN / red PLAYER ON / info 3v2)
+    if(ph.badge){ badge.textContent = ph.badge.t; badge.className = 'badge show ' + (ph.badge.c||'info'); }
+    else { badge.className = 'badge'; }
+    phaseLabel.textContent = ph.label;
+    phaseDesc.textContent  = ph.desc;
+    dots.forEach((d,idx) => d.classList.toggle('on', idx===i));
+    btnBack.disabled = (i===0);
+    btnNext.disabled = (i===phases.length-1);
+  }
+
+  /* ---- Term selection ---- */
+  function selectTerm(term){
+    stopAuto();
+    cardsWrap.querySelectorAll('.card').forEach(c =>
+      c.classList.toggle('selected', c.dataset.id === term.id));
+    if(term.text){
+      // Text-only card — meaning only, no pitch, no animation.
+      scene.style.display = 'none';
+      phaseLabel.style.display = 'none';
+      phaseDesc.style.display = 'none';
+      dotsWrap.style.display = 'none';
+      controlsWrap.style.display = 'none';
+      defWrap.style.display = 'none';
+      textOnly.style.display = 'flex';
+      textOnly.innerHTML =
+        '<div class="to-name">'+(term.num ? term.num+'. ' : '')+term.name+'</div>'+
+        (term.meaning ? '<div class="to-meaning">'+term.meaning+'</div>' : '');
+      return;
+    }
+    textOnly.style.display = 'none';
+    scene.style.display = '';
+    phaseLabel.style.display = '';
+    phaseDesc.style.display = '';
+    defWrap.style.display = '';
+    phases = term.phases;
+    buildDots(phases.length);
+    // Single-phase terms have no sequence — hide the Back / Auto / Next controls and dots.
+    const single = phases.length <= 1;
+    controlsWrap.style.display = single ? 'none' : 'flex';
+    dotsWrap.style.display     = single ? 'none' : 'flex';
+    defWrap.innerHTML =
+      '<div class="term">'+term.name+'</div>'+
+      '<div class="meaning">'+term.meaning+'</div>';
+    applyPhase(0);
+  }
+
+  /* ---- Card list for a category ---- */
+  function renderCards(category){
+    cardsWrap.innerHTML = '';
+    const list = TERMS.filter(t => t.category === category);
+    // Global Habits: a single line of intro copy above the card list.
+    if(category === 'global-habits'){
+      const intro = document.createElement('div');
+      intro.className = 'gh-intro';
+      intro.textContent = 'See the separate Global Habits Module for full detail on each habit.';
+      cardsWrap.appendChild(intro);
+    }
+    let lastGroup = null;
+    list.forEach(term => {
+      // Optional sub-heading above a group of terms (reusable across categories)
+      if(term.group && term.group !== lastGroup){
+        const h = document.createElement('div');
+        h.className = 'card-subhead';
+        h.textContent = term.group;
+        cardsWrap.appendChild(h);
+        lastGroup = term.group;
+      }
+      const c = document.createElement('div');
+      c.className = 'card' + (term.text ? ' textcard' : '');
+      c.dataset.id = term.id;
+      if(term.num){
+        c.innerHTML = '<span class="card-num">'+term.num+'.</span>'+term.name;
+      } else {
+        c.textContent = term.name;
+      }
+      c.addEventListener('click', () => selectTerm(term));
+      cardsWrap.appendChild(c);
+    });
+    if(list.length){
+      selectTerm(list[0]);
+    } else {
+      stopAuto();
+      cardsWrap.innerHTML = '<div class="card" style="cursor:default;opacity:.4;">No terms yet</div>';
+      defWrap.innerHTML = '';
+    }
+  }
+
+  /* ---- Controls ---- */
+  function stopAuto(){ if(timer){ clearInterval(timer); timer=null; btnAuto.innerHTML='&#9654; Auto'; } }
+  function startAuto(){
+    if(!phases.length) return;
+    if(cur === phases.length-1) applyPhase(0);
+    btnAuto.innerHTML='&#10073;&#10073; Pause';
+    timer = setInterval(() => {
+      if(cur >= phases.length-1){ stopAuto(); return; }
+      applyPhase(cur+1);
+    }, 2400);
+  }
+
+  btnBack.addEventListener('click', () => { stopAuto(); if(cur>0) applyPhase(cur-1); });
+  btnNext.addEventListener('click', () => { stopAuto(); if(cur<phases.length-1) applyPhase(cur+1); });
+  btnAuto.addEventListener('click', () => { timer ? stopAuto() : startAuto(); });
+
+  /* ---- Tabs ---- */
   const tabs = document.querySelectorAll('.tab');
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       tabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
+      renderCards(tab.dataset.tab);
     });
   });
+
+  /* ---- Default: GENERAL, first term selected ---- */
+  renderCards('general');
 </script>
 
 </body>
